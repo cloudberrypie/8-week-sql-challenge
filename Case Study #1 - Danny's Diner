@@ -1,6 +1,7 @@
-1. What is the total amount each customer spent at the restaurant?
+-- Case Study #1 - Danny's Diner - SQL
 
-````sql
+-- 1. What is the total amount each customer spent at the restaurant?
+
 SELECT
 	s.customer_id,
     SUM (men.price) as total_sum
@@ -9,9 +10,11 @@ SELECT
  ON s.product_id = men.product_id
  GROUP BY s.customer_id
  ORDER BY s.customer_id
-````
+
 
 customer_id 	total_sum
 A 	76
 B 	74
 C 	36
+
+-- 2. 
