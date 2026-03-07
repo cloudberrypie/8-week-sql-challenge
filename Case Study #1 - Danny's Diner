@@ -59,12 +59,83 @@ WITH rank_table AS (
 
 -- 5. Which item was the most popular for each customer?
 
- SELECT
- 	s.customer_id,
- 	menu.product_name,
-    COUNT (menu.product_name) OVER (PARTITION BY s.customer_id, menu.product_name) AS times_ordered
- FROM sales AS s
- LEFT JOIN menu
- ON s.product_id = menu.product_id
- ORDER BY customer_id, times_ordered DESC
+WITH ranking_table AS(
+SELECT
+	s.customer_id,
+	menu.product_name,
+	COUNT (menu.product_name) AS times_ordered,
+	DENSE_RANK () OVER (PARTITION BY customer_id ORDER BY COUNT (menu.product_name) DESC) AS ranking
+FROM sales AS s
+LEFT JOIN menu
+ON s.product_id = menu.product_id
+GROUP BY customer_id, product_name)
+
+SELECT 
+	customer_id,
+    product_name,
+    ranking
+FROM ranking_table
+WHERE ranking = 1
+
+-- 6. Which item was purchased first by the customer after they became a member?
+
+WITH visits_memrbers AS( 
+SELECT
+	s.*,
+    mem.join_date,
+    RANK() OVER (PARTITION BY s.customer_id ORDER BY s.order_date) AS visits_after
+FROM sales as s
+RIGHT JOIN members as mem
+ON s.customer_id = mem.customer_id
+AND s.order_date >= mem.join_date)
+
+SELECT
+	v.customer_id,
+    menu.product_name,
+    v.order_date
+FROM visits_memrbers AS v
+LEFT JOIN menu
+ON v.product_id = menu.product_id
+WHERE v.visits_after = 1
+ORDER BY customer_id       
+
+-- 7. Which item was purchased just before the customer became a member?
+
+WITH visits_prememrbers AS( 
+SELECT
+	s.*,
+    mem.join_date,
+    RANK() OVER (PARTITION BY s.customer_id ORDER BY s.order_date DESC) AS visits_before
+FROM sales as s
+RIGHT JOIN members as mem
+ON s.customer_id = mem.customer_id
+AND s.order_date < mem.join_date)
+
+SELECT
+	v.customer_id,
+    menu.product_name,
+    v.order_date
+FROM visits_prememrbers AS v
+LEFT JOIN menu
+ON v.product_id = menu.product_id
+WHERE v.visits_before = 1
+ORDER BY customer_id    
+
+-- 8. What is the total items and amount spent for each member before they became a member?
+
+SELECT
+	s.customer_id,
+	COUNT (s.product_id) AS items_purchased,
+    SUM (menu.price) AS total_amount
+FROM sales as s
+RIGHT JOIN members as mem
+ON s.customer_id = mem.customer_id
+AND s.order_date < mem.join_date
+LEFT JOIN menu
+ON s.product_id = menu.product_id
+GROUP BY s.customer_id
+ORDER BY s.customer_id
+
+-- 9. If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+
 
