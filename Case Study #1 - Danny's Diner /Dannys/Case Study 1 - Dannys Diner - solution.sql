@@ -11,12 +11,6 @@ SELECT
  GROUP BY s.customer_id
  ORDER BY s.customer_id;
 
-
-customer_id 	total_sum
-A 	76
-B 	74
-C 	36
-
 -- 2. How many days has each customer visited the restaurant?
 
 SELECT
