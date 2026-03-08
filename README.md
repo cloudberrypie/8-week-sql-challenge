@@ -1,4 +1,4 @@
-# 8 weeks SQL challenge
+# 8 Week SQL Challenge
 
 This repository contains my solutions for the 8 Week SQL Challenge at [8weeksqlchallenge.com](https://8weeksqlchallenge.com/).  
 
