@@ -1,1 +1,1 @@
-# 8weeks-sql-challenge
+# 8 weeks SQL challenge
