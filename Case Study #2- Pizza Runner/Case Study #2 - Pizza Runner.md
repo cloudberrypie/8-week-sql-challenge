@@ -61,5 +61,37 @@ select
 from runner_orders;
 ```
 
+## A. Pizza metrics
 
+**How many successful orders were delivered by each runner?** 
+```sql
+select
+runner_id,
+count (order_id)
+from runner_orders_clean
+where cancellation_clean is null 
+group by runner_id;
+```
+**For each customer, how many delivered pizzas had at least 1 change and how many had no changes?**
+```sql
+with orders_cte as(
+select 
+coc.pizza_id,
+coc.customer_id,
+coc.exclusions_clean,
+coc.extras_clean,
+roc.cancellation_clean
+from customer_orders_clean coc
+left join runner_orders_clean roc 
+on coc.order_id = roc.order_id
+where (coc.exclusions_clean is not null 
+	or coc.extras_clean is not null)
+	and roc.cancellation_clean is null)
+select
+customer_id,
+count(pizza_id)
+from orders_cte
+group by customer_id;
+```
+**What was the total volume of pizzas ordered for each hour of the day?**
 
