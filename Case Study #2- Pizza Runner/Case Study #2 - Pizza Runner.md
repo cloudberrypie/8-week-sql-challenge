@@ -8,10 +8,9 @@
 
 ## Cleaning data
 
-**Replace empty values**
+**Customer orders**
 
 ```sql
--- Cleaning NULL values
 drop table if exists customer_orders_clean;
 
 create temp table customer_orders_clean as
@@ -30,6 +29,9 @@ select
 	order_time 
 from customer_orders;
 ```
+
+**Runner orders**
+
 ```sql
 drop table if exists runner_orders_clean;
 
@@ -37,18 +39,21 @@ create temp table runner_orders_clean as
 select
 	order_id,
 	runner_id,
+	cast(
 	case
 		when pickup_time = 'null' then null
 		else pickup_time
-	end as pickup_time_clean,
+	end as timestamp) as pickup_time_clean,
+	cast(
 	case
 		when distance = 'null' then null
 		else regexp_replace(distance, '[a-zA-z]+$', '') 
-	end as distance_clean,
+	end as float)  as distance_clean,
+	cast(
 	case
 		when duration = 'null' then null
 		else regexp_replace(duration, '[a-zA-z]+$', '') 
-	end as duration_clean,
+	end as int) as duration_clean,
 	case
 		when cancellation in ('null', 'NaN', '') then null
 		else cancellation
