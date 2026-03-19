@@ -94,4 +94,45 @@ from orders_cte
 group by customer_id;
 ```
 **What was the total volume of pizzas ordered for each hour of the day?**
+```sql
+select 
+date_part('hour', order_time) as hour,
+COUNT(pizza_id)
+from customer_orders_clean
+group by hour
+order by hour;
+```
+
+## B. Runner and Customer Experience
+
+**What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?**
+```sql
+with time_to_pickup as(
+select
+distinct(coc.order_id),
+coc.order_time,
+roc.pickup_time_clean,
+extract(epoch from (roc.pickup_time_clean - coc.order_time))/60 as minutes,
+roc.runner_id
+from customer_orders_clean coc 
+left join runner_orders_clean roc 
+on coc.order_id = roc.order_id 
+where roc.pickup_time_clean is not null)
+select
+runner_id,
+round(avg(minutes)) as avg_time_to_pickup
+from time_to_pickup
+group by runner_id
+order by runner_id;
+```
+**What was the average distance travelled for each customer?**
+```sql
+```
+**What is the successful delivery percentage for each runner?**
+```sql
+```
+
+```sql
+```
+
 
