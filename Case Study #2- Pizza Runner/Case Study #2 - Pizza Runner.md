@@ -146,7 +146,21 @@ group by runner_id
 order by runner_id;
 ```
 
+## C. Ingredient Optimisation
+
+**What was the most commonly added extra?**
 ```sql
+select 
+pt.topping_name,
+count(extras_unnested) as times_added
+from customer_orders_clean coc
+join lateral unnest(string_to_array(coc.extras_clean, ',')) as extras_unnested
+on true
+left join pizza_toppings pt 
+on pt.topping_id = cast(extras_unnested as int)
+group by pt.topping_name
+order by times_added desc
+limit 1;
 ```
 
 
