@@ -127,9 +127,23 @@ order by runner_id;
 ```
 **What was the average distance travelled for each customer?**
 ```sql
+select 
+coc.customer_id ,
+round(avg(roc.distance_clean)) as distance_travelled
+from runner_orders_clean roc 
+left join customer_orders_clean coc 
+on roc.order_id = coc.order_id
+group by coc.customer_id 
+order by coc.customer_id;
 ```
 **What is the successful delivery percentage for each runner?**
 ```sql
+select 
+runner_id ,
+sum(case when cancellation_clean is null then 1 else 0 end) * 100.0 / count(runner_id) as delivered_percent
+from runner_orders_clean  
+group by runner_id 
+order by runner_id;
 ```
 
 ```sql
