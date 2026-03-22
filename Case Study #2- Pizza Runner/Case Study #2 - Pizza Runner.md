@@ -162,5 +162,33 @@ group by pt.topping_name
 order by times_added desc
 limit 1;
 ```
+**Generate an order item for each record in the customers_orders table in the format of one of the following:**
 
-
+    Meat Lovers
+    Meat Lovers - Exclude Beef
+    Meat Lovers - Extra Bacon
+    Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers
+```sql
+select
+coc.order_id ,
+coc.pizza_id,
+pn.pizza_name,
+coc.exclusions_clean,
+coc.extras_clean,
+concat(pn.pizza_name,
+	case when coc.exclusions_clean is not null
+		then ' - Exclude '|| (select string_agg(pt.topping_name, ', ' order by pt.topping_id)
+	         from unnest(string_to_array(coc.exclusions_clean, ', ')) as ex(id)
+	         join pizza_toppings pt on pt.topping_id = CAST(ex.id as INTEGER))
+	    else ''
+	    end,
+	case when coc.extras_clean is not null
+		then ' - Extra '|| (select string_agg(pt.topping_name, ', ' order by pt.topping_id)
+	         from unnest(string_to_array(coc.extras_clean, ', ')) as extra(id)
+	         join pizza_toppings pt on pt.topping_id = CAST(extra.id as INTEGER))
+	    else null
+	    end)
+from customer_orders_clean coc
+left join pizza_names pn
+on pn.pizza_id = coc.pizza_id;
+```
