@@ -85,9 +85,6 @@ from customer_orders_clean coc
 left join runner_orders_clean roc 
 on coc.order_id = roc.order_id
 where roc.cancellation_clean is null)
---(coc.exclusions_clean is not null 
-	--or coc.extras_clean is not null)
-	--and roc.cancellation_clean is null)
 select
 customer_id,
 sum(case when exclusions_clean is not null
@@ -99,6 +96,14 @@ sum(case when exclusions_clean is null
 from orders_cte
 group by customer_id;
 ```
+|customer_id|ingredients_changed|ingredients_unchanged|
+|-----------|-------------------|---------------------|
+|101|0|2|
+|102|0|3|
+|103|3|0|
+|104|2|1|
+|105|1|0|
+
 **What was the total volume of pizzas ordered for each hour of the day?**
 ```sql
 select 
@@ -131,6 +136,12 @@ from time_to_pickup
 group by runner_id
 order by runner_id;
 ```
+|runner_id|avg_time_to_pickup|
+|---------|------------------|
+|1|14|
+|2|20|
+|3|10|
+
 **What was the average distance travelled for each customer?**
 ```sql
 select 
