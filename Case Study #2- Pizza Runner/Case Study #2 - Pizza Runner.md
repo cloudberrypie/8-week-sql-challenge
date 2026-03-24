@@ -84,12 +84,18 @@ roc.cancellation_clean
 from customer_orders_clean coc
 left join runner_orders_clean roc 
 on coc.order_id = roc.order_id
-where (coc.exclusions_clean is not null 
-	or coc.extras_clean is not null)
-	and roc.cancellation_clean is null)
+where roc.cancellation_clean is null)
+--(coc.exclusions_clean is not null 
+	--or coc.extras_clean is not null)
+	--and roc.cancellation_clean is null)
 select
 customer_id,
-count(pizza_id)
+sum(case when exclusions_clean is not null
+	or extras_clean is not null
+	then 1 else 0 end) as ingredients_changed,
+sum(case when exclusions_clean is null
+	and extras_clean is null
+	then 1 else 0 end) as ingredients_unchanged
 from orders_cte
 group by customer_id;
 ```
