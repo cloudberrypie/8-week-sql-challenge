@@ -2,11 +2,87 @@
 
 ## Intro
 
-## Entity Realtionship Diagramm
+This time Danny is running a pizza service with an Uber-like delivery system.  
+He is going to need help with cleaning data, getting metrics, estimating customer experience and optimizing his recipies.  
+
+The queries can be tested on [DB-Fiddle](https://www.db-fiddle.com/f/7VcQKQwsS3CTkGRFG7vu98/65)  
+Full information for the Case Study can be found [here](https://8weeksqlchallenge.com/case-study-2/)
+
+## Entity Realtionship Diagramm and Available Data
 
 <img width="948" height="460" alt="Screenshot 2026-03-08 at 17-49-59 Case Study #2 - Pizza Runner – 8 Week SQL Challenge – Start your SQL learning journey today!" src="https://github.com/user-attachments/assets/6a6ae71f-08b7-4cb6-bdd7-a54ac758043f" />
 
+
+**Table 1: runners**
+
+The runners table shows the registration_date for each new runner
+
+|runner_id|registration_date|
+|---------|-----------------|
+|1|2021-01-01|
+|2|2021-01-03|
+|3|2021-01-08|
+|4|2021-01-15|
+
+**Table 2: customer_orders**
+
+Customer pizza orders are captured in the customer_orders table with 1 row for each individual pizza that is part of the order.  
+The pizza_id relates to the type of pizza which was ordered whilst the exclusions are the ingredient_id values which should be removed from the pizza and the extras are the ingredient_id values which need to be added to the pizza.  
+
+|order_id|customer_id|pizza_id|exclusions|extras|order_time|
+|--------|-----------|--------|----------|------|----------|
+|1|101|1|||2020-01-01 18:05:02.000|
+|2|101|1|||2020-01-01 19:00:52.000|
+|3|102|1|||2020-01-02 23:51:23.000|
+|3|102|2|||2020-01-02 23:51:23.000|
+|...|...|...|...|...|...|
+
+**Table 3: runner_orders**
+
+After each orders are received through the system - they are assigned to a runner - however not all orders are fully completed and can be cancelled by the restaurant or the customer.  
+The pickup_time is the timestamp at which the runner arrives at the Pizza Runner headquarters to pick up the freshly cooked pizzas. The distance and duration fields are related to how far and long the runner had to travel to deliver the order to the respective customer.
+
+|order_id|runner_id|pickup_time|distance|duration|cancellation|
+|--------|---------|-----------|--------|--------|------------|
+|1|1|2020-01-01 18:15:34|20km|32 minutes||
+|2|1|2020-01-01 19:10:54|20km|27 minutes||
+|3|1|2020-01-03 00:12:37|13.4km|20 mins||
+|...|...|...|...|...|...|
+
+**Table 4: pizza_names**
+
+|pizza_id|pizza_name|
+|--------|----------|
+|1|Meatlovers|
+|2|Vegetarian|
+
+**Table 5: pizza_recipes**
+
+Each pizza_id has a standard set of toppings which are used as part of the pizza recipe.
+
+|pizza_id|toppings|
+|--------|--------|
+|1|1, 2, 3, 4, 5, 6, 8, 10|
+|2|4, 6, 7, 9, 11, 12|
+
+**Table 6: pizza_toppings**
+
+This table contains all of the topping_name values with their corresponding topping_id value.
+
+|topping_id|topping_name|
+|----------|------------|
+|1|Bacon|
+|2|BBQ Sauce|
+|3|Beef|
+|...|...|
+
 ## Cleaning data
+
+First step is to clean data. Two tables have inconsistensies and wrong data types: customer_orders and runner_orders.  
+In this case I have created temporary tables for the cleaned data and performed the following transformations:
+- replaced all cells with 'null', '' or 'NaN' with NULL
+- for runner_orders extracted numbers with regex
+- for runner_orders cast pickup_time as timestamp
 
 **Customer orders**
 
