@@ -37,7 +37,8 @@ We are going to look at Foodie-Fi subscription data and try to get some insight 
 
 ## B. Data Analysis Questions
 
-**What is the monthly distribution of trial plan start_date values for our dataset - use the start of the month as the group by value**
+### What is the monthly distribution of trial plan start_date values for our dataset - use the start of the month as the group by value?
+
 ```sql
 select 
 date_part('month', s.start_date) as start_month,
@@ -65,5 +66,39 @@ order by start_month;
 |11.0|75|
 |12.0|84|
 
-<img width="566" height="302" alt="image" src="https://github.com/user-attachments/assets/90ddf579-1369-411f-918e-f5c770a99c26" />
+<img width="766" height="353" alt="chart" src="https://github.com/user-attachments/assets/51021f96-67f7-4b9d-8e13-b4f44ba306f1" />
+
+### What is the customer count and percentage of customers who have churned rounded to 1 decimal place?
+
+```sql
+select 
+sum(case when s.plan_id = 4 then 1 else 0 end) as churn_customers,
+sum(case when s.plan_id = 4 then 1 else 0 end) * 100.0 / count (distinct customer_id) as churn_percent
+from foodie_fi.subscriptions s;
+```
+
+|churn_customers|churn_percent|
+|---------------|-------------|
+|307|30.7|
+ 
+### How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number?
+
+```sql
+select
+sum(case when plan_id = 4 and plan_prev = 0 then 1 else 0 end) as churn_after_trial,
+sum(case when plan_id = 4 and plan_prev = 0 then 1 else 0 end) * 100.0 / count (distinct customer_id) as churn_percent
+from(select 
+	customer_id,
+	plan_id,
+	lag(plan_id) over (partition by customer_id) as plan_prev
+	from foodie_fi.subscriptions);
+```
+
+|churn_after_trial|churn_percent|
+|-----------------|-------------|
+|92|9.2|
+
+
+
+
 
