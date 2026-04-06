@@ -98,7 +98,30 @@ from(select
 |-----------------|-------------|
 |92|9.2|
 
+### What is the number and percentage of customer plans after their initial free trial?
 
+```sql
+select 
+distinct plan_id,
+count (customer_id) over (partition by plan_id) as number_of_customers,
+count (customer_id) over (partition by plan_id) * 100.0 / (select count (distinct customer_id) from foodie_fi.subscriptions) as percentage
+from(
+	select 
+	customer_id,
+	plan_id,
+	lag(plan_id) over (partition by customer_id) as plan_prev
+	from foodie_fi.subscriptions)
+where plan_prev = 0;
+```
+
+|plan_id|number_of_customers|percentage|
+|-------|-------------------|----------|
+|1|546|54.6|
+|2|325|32.5|
+|3|37|3.7|
+|4|92|9.2|
+
+### What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
 
 
 
